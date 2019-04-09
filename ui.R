@@ -15,11 +15,11 @@ header <- dashboardHeader(
 sidebar <- dashboardSidebar(
   sidebarMenu(id="tabs", menuItem("Introduction", tabName = "intro", icon = icon("edit")),
                           menuItem("Upload Files", tabName = "upfiles", icon = icon("server")),
-                          menuItem("Filters", tabName = "filters", icon = icon("filter")),
-                          menuItem("Volcano Plot", tabName = "volcano", icon = icon("braille")),
-                          menuItem("Heatmap", tabName = "heatmap", icon = icon("braille")),
-                          menuItem("Output Results", tabName = "res", icon = icon("eye"))
-)
+                          menuItem("Analysis", tabName = "analysis", icon = icon("braille"),
+                                              menuSubItem("Graphics", tabName = "graphics"),
+                                               menuSubItem("Statistics", tabName = "graphics")
+                                    ))
+                         
 )
 
 body <- dashboardBody(
@@ -37,7 +37,7 @@ body <- dashboardBody(
      ##upload files
     tabItem(tabName = "upfiles", fluidRow(
       box(title = "Input Data",
-          solidHeader = T, status = "warning", width = 12,
+          solidHeader = T, status = "success", width = 12,
           
           fluidRow(
             ###Input TopTable files###
@@ -49,8 +49,16 @@ body <- dashboardBody(
                           accept = ".csv",
                           placeholder = "Please, insert the datapath of Top Table files"),
                 submitButton("Submit")
-            )
-            
+            ),
+            ###Input Expression Matrix files###
+            box(title ="Expression Matrix FILES",
+                solidHeader = T, status = "info", width = 6,
+                
+                fileInput("file2", "Load Expression Matrix files(.csv)",
+                          multiple = TRUE,
+                          accept = ".csv",
+                          placeholder = "Please, insert the datapath of Matrix Expression files"),
+                submitButton("Submit")
           )
         )
   
@@ -73,4 +81,6 @@ body <- dashboardBody(
 
 )
 )
+)
+
 ui <- dashboardPage(header, sidebar, body, skin = "green")

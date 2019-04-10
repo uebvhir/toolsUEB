@@ -1,14 +1,14 @@
 library(shiny)
 
 shinyServer(function(input,output){
-  
+##load FILES
   #load TopTable Files
   dataT <- reactive({
     validate(
       need(input$file != "", "Please Load TopTable files")
     )
     
-    read.csv(input$file$datapath)
+    read.csv(input$file$datapath,sep = ";")
     })
   
   #Load Expression Matrix Files
@@ -21,6 +21,15 @@ shinyServer(function(input,output){
     data1 = read.csv(genes1$datapath,sep = ";")
     return(data1)
   })
+  
+  #####Custom targets information#####
+  
+  output$dataT <- renderDataTable({
+    dataT()
+  })
+  
+##Analysis
+  ##Graphical analysis
   
   
 })

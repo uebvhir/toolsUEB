@@ -5,9 +5,11 @@ options(repos = BiocInstaller::biocinstallRepos())
 getOption("repos")
 
 #libraries
+install.packages("shinycssloaders")
 library(shiny)
 library(shinydashboard)
 library(DT)
+library(shinycssloaders)
 source("http://bioconductor.org/biocLite.R")
 biocLite("oligo")
 biocLite("pd.mogene.1.0.st.v1")
@@ -107,7 +109,7 @@ body <- dashboardBody(
               ),
               box(title = "Volcano plot", 
                   solidHeader = T, status="success",width = 12,
-                  (plotOutput("volcano")),
+                  withSpinner(plotOutput("volcano")),
                   sliderInput("volcano", "number of genes:",
                               min = 1, max = 10,
                               value = 2,step = 1),

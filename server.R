@@ -70,19 +70,26 @@ shinyServer(function(input,output){
    #####Output selected genes table#######
   
   output$selectedtable <- renderDataTable({
-    data <- selected()[,c(1:6)]
+    data <- selected()[,c(1:7)]
     
     datatable(data, rownames = FALSE)
   })
  
+  data <- reactive({
+    data <- selected()[,c(1:7)]
+    return(data)
+  })
   #####Volcano Plot#######
 
   output$volcano <- renderPlot({
-    y <- as.numeric(data()$P.Value)
-    x <- data()$logFC
-    with(data(), plot(x, -log10(y), pch=20, main="Differentially expressed genes", xlim=c(-2.5,2),ylim=c(-2.5,2))) 
-               
-    #
+   
+     y <- as.numeric(data()$P.Value)
+     x <- as.numeric(data()$logFC)
+   
+    with(data(), plot(x, -log(y), pch=20, main="Differentially expressed genes", xlab="logFC", ylab="-log(p-value)", xlim=c(-6,6),ylim=c(-2,20))) 
+    
     abline(v=c(-1,1))
   })
 })
+
+

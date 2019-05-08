@@ -5,16 +5,17 @@ options(repos = BiocInstaller::biocinstallRepos())
 getOption("repos")
 
 #libraries
-install.packages("shinycssloaders")
 library(shiny)
 library(shinydashboard)
 library(DT)
 library(shinycssloaders)
+library (RColorBrewer)
+library(mvtnorm)
 source("http://bioconductor.org/biocLite.R")
-biocLite("oligo")
-biocLite("pd.mogene.1.0.st.v1")
-biocLite("arrayQualityMetrics")
-biocLite("genefilter")
+#biocLite("oligo")
+#biocLite("pd.mogene.1.0.st.v1")
+#biocLite("arrayQualityMetrics")
+#biocLite("genefilter")
 biocLite("limma")
 biocLite("xtable")
 biocLite("gplots")
@@ -76,7 +77,15 @@ body <- dashboardBody(
                 submitButton("Submit")
           )
         )
-     )
+      ),
+      fluidRow(
+        box(title = "Top Table",
+            solidHeader = T, status = "info", width = 12,
+            dataTableOutput("topTab")),
+        box(title = "Heatmap",
+            solidHeader = T, status = "info", width = 12,
+            dataTableOutput("expMat"))
+      )
 )),
     tabItem(tabName = "analysis",
         h2("Summary of Results")
@@ -88,10 +97,6 @@ body <- dashboardBody(
               box(title = "Toptable",
                solidHeader = T, status = "success", width = 12,
                 fluidRow(
-                  box(title = "Top Table",
-                     solidHeader = T, status = "info", width = 12,
-                      dataTableOutput("topTab")),
-                  
                   box(title = "Selected Genes",
                       solidHeader = T, status = "info", width = 3,
                       selectInput("pvalue","Adj.p-val",choices=list("no filter","0.001","0.05"), 
@@ -106,21 +111,36 @@ body <- dashboardBody(
                      dataTableOutput("selectedtable")
                      )
                  )
-              ),
+              )
+            ),
+           fluidRow(
               box(title = "Volcano plot", 
                   solidHeader = T, status="success",width = 12,
                   withSpinner(plotOutput("volcano")),
                   sliderInput("volcano", "number of genes:",
-                              min = 1, max = 10,
-                              value = 2,step = 1),
+                              min = 1, max = 7000,
+                              value = 5000,step = 1),
                   submitButton("Submit")
                   
-                  )
-            )
+                  )),
+           fluidRow(
+             box(title='Heatmap',
+                 solidHeader = T, status="success",width = 12,
+                 fluidRow(
+                   box(title = 'controls',
+                       solidHeader = T, status="info",width = 3,
+                       sliderInput("heatmapSlider", "number of genes:",
+                                   min = 1, max = 7000,
+                                   value = 15,step = 1),
+                       submitButton("Submit")),
+                   box(title='heatmap',
+                       solidHeader = T, status="info",width = 9,
+                       withSpinner(plotOutput("heatmap")))
+                 ))
+           )
+          )
         )
-)
-)
+      )
+
                
-
-
 ui <- dashboardPage(header, sidebar, body, skin = "green")

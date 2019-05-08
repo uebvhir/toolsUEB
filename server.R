@@ -28,6 +28,10 @@ shinyServer(function(input,output){
     topTab()
   })
   
+  output$expMat <- renderDataTable({
+    expMat()
+  })
+  
 ##Analysis
   ##Graphical analysis
   
@@ -67,7 +71,7 @@ shinyServer(function(input,output){
     
   })
   
-   #####Output selected genes table#######
+  #####Output selected genes table#######
   
   output$selectedtable <- renderDataTable({
     data <- selected()[,c(1:7)]
@@ -82,13 +86,28 @@ shinyServer(function(input,output){
   #####Volcano Plot#######
 
   output$volcano <- renderPlot({
+     ex<-as.data.frame(topTab())
+     y <- as.numeric(ex$P.Value)
+     x <- as.numeric(ex$logFC)
    
-     y <- as.numeric(data()$P.Value)
-     x <- as.numeric(data()$logFC)
-   
-    with(data(), plot(x, -log(y), pch=20, main="Differentially expressed genes", xlab="logFC", ylab="-log(p-value)", xlim=c(-6,6),ylim=c(-2,20))) 
+    with(ex[c(1:input$volcano),], plot(x, -log(y), pch=20, main="Differentially expressed genes", xlab="logFC", ylab="-log(p-value)", xlim=c(-6,6),ylim=c(-2,20))) 
     
     abline(v=c(-1,1))
+  })
+  
+
+  output$heatmap <- renderPlot({
+    #browser()
+    ex<-as.data.frame(expMat())
+    rownames(ex) <- ex$X
+    rownames(ex)
+    selGenes <- ex[c(1:input$heatmapSlider),]
+    m<-data.matrix(selGenes, rownames.force = NA)
+    colours <- colorRampPalette(brewer.pal(9, "PuOr"))
+    par(mar = rep(2,4))
+    heatmap.2  (m, key=T, symkey=F, trace="none", scale="column", 
+                col=colours, dendrogram = c("column"), Rowv=T, keysize=2, cexRow=0.5,  cexCol=0.5)
+    #dev.off()
   })
 })
 

@@ -10,7 +10,6 @@ library(shinydashboard)
 library(DT)
 library(shinycssloaders)
 library (RColorBrewer)
-library(mvtnorm)
 source("http://bioconductor.org/biocLite.R")
 #biocLite("oligo")
 #biocLite("pd.mogene.1.0.st.v1")
@@ -30,7 +29,7 @@ sidebar <- dashboardSidebar(
                          menuItem("Upload Files", tabName = "upfiles", icon = icon("server")),
                          menuItem("Analysis", tabName = "analysis", icon = icon("braille"),
                                               menuSubItem("Graphics", tabName = "graphics"),
-                                              menuSubItem("Functional", tabName = "graphics2")
+                                              menuSubItem("Functional", tabName = "functional")
                                     ))
 )
 
@@ -81,10 +80,10 @@ body <- dashboardBody(
       fluidRow(
         box(title = "Top Table",
             solidHeader = T, status = "info", width = 12,
-            dataTableOutput("topTab")),
-        box(title = "Heatmap",
+            withSpinner(dataTableOutput("topTab"))),
+        box(title = "Expression matrix",
             solidHeader = T, status = "info", width = 12,
-            dataTableOutput("expMat"))
+            withSpinner(dataTableOutput("expMat")))
       )
 )),
     tabItem(tabName = "analysis",
@@ -108,7 +107,7 @@ body <- dashboardBody(
                       submitButton("Submit")),
                   box(title = "Selected Genes from Top Table",
                      solidHeader = T, status = "info", width = 9,
-                     dataTableOutput("selectedtable")
+                     withSpinner(dataTableOutput("selectedtable"))
                      )
                  )
               )
@@ -132,15 +131,36 @@ body <- dashboardBody(
                        sliderInput("heatmapSlider", "number of genes:",
                                    min = 1, max = 7000,
                                    value = 15,step = 1),
+                       colourInput("colNum1", label = "Choose colours for heatmap",  "blue"),
+                       colourInput("colNum2", label = NULL, "red"),
+                       sliderInput("colorBreaks", label ="Select number of color breaks", 
+                                   min = 2, max = 128, value = 16),
                        submitButton("Submit")),
                    box(title='heatmap',
                        solidHeader = T, status="info",width = 9,
                        withSpinner(plotOutput("heatmap")))
                  ))
            )
+          ),
+    tabItem(tabName = "functional",
+            h2("Results of the functional analysis"),
+            fluidRow(
+              box(title = "GO analysis",
+                  solidHeader = T, status="success",width = 12,
+                  fluidRow(
+                    box(title = "GO table",
+                        solidHeader = T, status="info",width = 6,
+                        withSpinner(dataTableOutput("gotable"))
+                    ),
+                    box(title = "GO plot",
+                        solidHeader = T, status="info",width = 6,
+                        withSpinner(plotOutput("goplot")))
+                  )
+                )
+              )
+            )
           )
         )
-      )
 
                
 ui <- dashboardPage(header, sidebar, body, skin = "green")

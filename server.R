@@ -1,8 +1,8 @@
 library(shiny)
 
 shinyServer(function(input,output){
-######load FILES
-  #load TopTable Files
+  ###############################LOAD FILES###############################
+  #####FLOAD TOP TABLE FILES######
   topTab <- reactive({
     validate(
       need(input$file1 != "", "Please Load TopTable files")
@@ -12,7 +12,7 @@ shinyServer(function(input,output){
     else {read.csv2(inFile1$datapath, sep=input$sep1, dec=input$dec1, header=TRUE)}
     })
   
-  #Load Expression Matrix Files
+  #####LOAD EXPRESSION MATRIX FILES######
   expMat <- reactive({
     validate(
       need(input$file2 !="", "Please load the Expression Matrix file")
@@ -22,22 +22,21 @@ shinyServer(function(input,output){
     else {read.csv2(inFile2$datapath, sep=input$sep2, dec=input$dec2, header=TRUE)}
   })
   
-  #####Custom topTable information#####
-  
+  #####CUSTOM TOP TABLE INFORMATION######
   output$topTab <- renderDataTable({
     topTab()
   })
   
+  #####CUSTOM EXPRESSION MATRIX INFORMATION######
   output$expMat <- renderDataTable({
     expMat()
   })
   
-##Analysis
-  ##Graphical analysis
+##ANALYSIS##
+  ###############################GRAPHICAL ANALYSIS###############################
   
-  #####Selected genes table######
-  
-  selected <- reactive({
+  #####FILTERING SELECTED GENES TABLE######
+    selected <- reactive({
     
     if(input$pvalue == "0.05"){
       if(input$lfc == "1"){
@@ -68,14 +67,11 @@ shinyServer(function(input,output){
        selected <- topTab()
      }
     }
-    
   })
   
-  #####Output selected genes table#######
-  
+  #####OUTPUT SELECTED GENES TABLE#######
   output$selectedtable <- renderDataTable({
     data <- selected()[,c(1:7)]
-    
     datatable(data, rownames = FALSE)
   })
  
@@ -83,8 +79,7 @@ shinyServer(function(input,output){
     data <- selected()[,c(1:7)]
     return(data)
   })
-  #####Volcano Plot#######
-
+  #####VOLCANO PLOT#######
   output$volcano <- renderPlot({
      ex<-as.data.frame(topTab())
      y <- as.numeric(ex$P.Value)
@@ -95,7 +90,7 @@ shinyServer(function(input,output){
     abline(v=c(-1,1))
   })
   
-
+  #####HEATMAP#######
   output$heatmap <- renderPlot({
     #browser()
     ex<-as.data.frame(expMat())
@@ -103,12 +98,21 @@ shinyServer(function(input,output){
     rownames(ex)
     selGenes <- ex[c(1:input$heatmapSlider),]
     m<-data.matrix(selGenes, rownames.force = NA)
-    colours <- colorRampPalette(brewer.pal(9, "PuOr"))
+    colours <- colorRampPalette(c(input$colNum1, "grey", input$colNum2))(n = input$colorBreaks+1)
     par(mar = rep(2,4))
-    heatmap.2  (m, key=T, symkey=F, trace="none", scale="column", 
-                col=colours, dendrogram = c("column"), Rowv=T, keysize=2, cexRow=0.5,  cexCol=0.5)
-    #dev.off()
+    y <- scale(m)
+    hr <- hclust(as.dist(1-cor(t(y), method="pearson")))
+    hc <- hclust(as.dist(1-cor(y, method="pearson")), method="complete")
+    mycl  <- cutree(hr, h=max(hr$height)/1.5); 
+    mycolhc <-  rainbow(length(unique(mycl)), start=0.1, end=0.9);
+    mycolhc <-  mycolhc[as.vector(mycl)]
+    heatmap.2(y,  key=T, symkey=F, Rowv=as.dendrogram(hr), Colv=as.dendrogram(hc), col=colours, 
+              scale="row", trace="none", RowSideColors=mycolhc, 
+              cexRow=0.1, cexCol=0.7)
   })
+  
+  ###############################FUNCTIONAL ANALYSIS###############################
+  
 })
 
 

@@ -113,6 +113,45 @@ shinyServer(function(input,output){
   
   ###############################FUNCTIONAL ANALYSIS###############################
   
+  topGOdata <- reactive({
+
+
+  ttab <-as.data.frame(topTab())
+  rownames(ttab) <- ttab$X
+  geneID<-rownames(ttab)
+  sel <- ttab[c(1:20),]
+  myInterestingGenes <- rownames(sel)
+  geneList <- factor(as.integer(geneID %in% myInterestingGenes))
+  names(geneList) <- geneID
+    
+  affyLib <- paste(annotation(ALL), "db", sep = ".")
+    
+  topGOdata <- new("topGOdata", ontology = "BP", allGenes = geneList,
+                    nodeSize = 10,
+                     annot=annFUN.db,
+                     affyLib = affyLib)
+  return(topGOdata)
+  })
+  
+  output$gotable <- renderDataTable({
+   
+    resultFisher <- runTest(topGOdata(), algorithm = "classic", statistic = "fisher")
+    
+    resultKS <- runTest(topGOdata(), algorithm = "classic", statistic = "ks")
+    resultKS.elim <- runTest(topGOdata(), algorithm = "elim", statistic = "ks")
+    
+    gotable <- GenTable(topGOdata(), classicFisher = resultFisher,
+                       classicKS = resultKS, elimKS = resultKS.elim,
+                       orderBy = "elimKS", ranksOf = "classicFisher", topNodes = 10)
+    datatable(gotable, rownames = FALSE)
+  })
+  
+  output$goplot <- renderPlot({
+    showSigOfNodes(topGOdata(),
+                   score(resultKS.elim), firstSigNodes = 5,
+                   useInfo = 'all')
+  })
+  
 })
 
 

@@ -10,6 +10,8 @@ library(shinydashboard)
 library(DT)
 library(shinycssloaders)
 library (RColorBrewer)
+library(colourpicker)
+library(gplots)
 source("http://bioconductor.org/biocLite.R")
 #biocLite("oligo")
 #biocLite("pd.mogene.1.0.st.v1")
@@ -18,7 +20,8 @@ source("http://bioconductor.org/biocLite.R")
 biocLite("limma")
 biocLite("xtable")
 biocLite("gplots")
-
+biocLite("topGO")
+biocLite("ALL")
 
 header <- dashboardHeader(
   title = "UEB Tools App"
@@ -91,7 +94,7 @@ body <- dashboardBody(
 ),
 
         tabItem(tabName = "graphics",
-           h2("Results"),
+           h2("Results of the graphical analysis"),
             fluidRow(
               box(title = "Toptable",
                solidHeader = T, status = "success", width = 12,
@@ -101,7 +104,7 @@ body <- dashboardBody(
                       selectInput("pvalue","Adj.p-val",choices=list("no filter","0.001","0.05"), 
                                   selected = "no filter", multiple = FALSE,
                                   selectize = TRUE, width = NULL, size = NULL),
-                      selectInput("lfc", "Select LFC: ", choices=list("no filter","1","-1"), 
+                      selectInput("lfc", "Select logFC: ", choices=list("no filter","1","-1"), 
                                   selected = "no filter", multiple = FALSE,
                                   selectize = TRUE, width = NULL, size = NULL),
                       submitButton("Submit")),
@@ -116,7 +119,7 @@ body <- dashboardBody(
               box(title = "Volcano plot", 
                   solidHeader = T, status="success",width = 12,
                   withSpinner(plotOutput("volcano")),
-                  sliderInput("volcano", "number of genes:",
+                  sliderInput("volcano", "Number of genes:",
                               min = 1, max = 7000,
                               value = 5000,step = 1),
                   submitButton("Submit")
@@ -126,17 +129,17 @@ body <- dashboardBody(
              box(title='Heatmap',
                  solidHeader = T, status="success",width = 12,
                  fluidRow(
-                   box(title = 'controls',
+                   box(title = 'Controls',
                        solidHeader = T, status="info",width = 3,
-                       sliderInput("heatmapSlider", "number of genes:",
+                       sliderInput("heatmapSlider", "Number of genes:",
                                    min = 1, max = 7000,
                                    value = 15,step = 1),
-                       colourInput("colNum1", label = "Choose colours for heatmap",  "blue"),
+                       colourInput("colNum1", label = "Choose colours for heatmap", "yellow"),
                        colourInput("colNum2", label = NULL, "red"),
                        sliderInput("colorBreaks", label ="Select number of color breaks", 
                                    min = 2, max = 128, value = 16),
                        submitButton("Submit")),
-                   box(title='heatmap',
+                   box(title='Heatmap',
                        solidHeader = T, status="info",width = 9,
                        withSpinner(plotOutput("heatmap")))
                  ))
@@ -148,19 +151,19 @@ body <- dashboardBody(
               box(title = "GO analysis",
                   solidHeader = T, status="success",width = 12,
                   fluidRow(
-                    box(title = "GO table",
-                        solidHeader = T, status="info",width = 6,
-                        withSpinner(dataTableOutput("gotable"))
+                    box(title='GO table',
+                        solidHeader = T, status="info",width = 12,
+                        withSpinner(dataTableOutput("gotable")))   
                     ),
                     box(title = "GO plot",
-                        solidHeader = T, status="info",width = 6,
-                        withSpinner(plotOutput("goplot")))
+                        solidHeader = T, status="info",width = 12,
+                        withSpinner(plotOutput("goplot",width = 900, height = 1100)))
                   )
                 )
               )
             )
           )
-        )
+        
 
                
 ui <- dashboardPage(header, sidebar, body, skin = "green")

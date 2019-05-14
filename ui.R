@@ -1,10 +1,12 @@
 options(spinner.color="#00ff83")
 options(shiny.maxRequestSize = 70*1024^2)
 options(expressions = 5000)
-options(repos = BiocInstaller::biocinstallRepos())
-getOption("repos")
+
 
 #libraries
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install()
 library(shiny)
 library(shinydashboard)
 library(DT)
@@ -12,16 +14,18 @@ library(shinycssloaders)
 library (RColorBrewer)
 library(colourpicker)
 library(gplots)
-source("http://bioconductor.org/biocLite.R")
-#biocLite("oligo")
-#biocLite("pd.mogene.1.0.st.v1")
-#biocLite("arrayQualityMetrics")
-#biocLite("genefilter")
-biocLite("limma")
-biocLite("xtable")
-biocLite("gplots")
-biocLite("topGO")
-biocLite("ALL")
+library(calibrate)
+library(limma)
+library(xtable)
+library(gplots)
+library(topGO)
+library(ALL)
+#source("http://bioconductor.org/biocLite.R")
+#biocLite("limma")
+#biocLite("xtable")
+#biocLite("gplots")
+#biocLite("topGO")
+#biocLite("ALL")
 
 header <- dashboardHeader(
   title = "UEB Tools App"
@@ -92,7 +96,6 @@ body <- dashboardBody(
     tabItem(tabName = "analysis",
         h2("Summary of Results")
 ),
-
         tabItem(tabName = "graphics",
            h2("Results of the graphical analysis"),
             fluidRow(
@@ -101,12 +104,8 @@ body <- dashboardBody(
                 fluidRow(
                   box(title = "Selected Genes",
                       solidHeader = T, status = "info", width = 3,
-                      selectInput("pvalue","Adj.p-val",choices=list("no filter","0.001","0.05"), 
-                                  selected = "no filter", multiple = FALSE,
-                                  selectize = TRUE, width = NULL, size = NULL),
-                      selectInput("lfc", "Select logFC: ", choices=list("no filter","1","-1"), 
-                                  selected = "no filter", multiple = FALSE,
-                                  selectize = TRUE, width = NULL, size = NULL),
+                      numericInput("pvalue", "Select Adjust P Value:",value = 0.05, min = 0.001, max= 0.7),
+                      numericInput("lfc", "Select logFC: ", value = -1, min = -5, max= 5), 
                       submitButton("Submit")),
                   box(title = "Selected Genes from Top Table",
                      solidHeader = T, status = "info", width = 9,
@@ -131,16 +130,13 @@ body <- dashboardBody(
                  fluidRow(
                    box(title = 'Controls',
                        solidHeader = T, status="info",width = 3,
-                       sliderInput("heatmapSlider", "Number of genes:",
-                                   min = 1, max = 7000,
-                                   value = 15,step = 1),
                        colourInput("colNum1", label = "Choose colours for heatmap", "yellow"),
                        colourInput("colNum2", label = NULL, "red"),
                        sliderInput("colorBreaks", label ="Select number of color breaks", 
                                    min = 2, max = 128, value = 16),
                        submitButton("Submit")),
                    box(title='Heatmap',
-                       solidHeader = T, status="info",width = 9,
+                       solidHeader = T, status="info",width = 6,
                        withSpinner(plotOutput("heatmap")))
                  ))
            )
@@ -163,7 +159,5 @@ body <- dashboardBody(
               )
             )
           )
-        
-
-               
+              
 ui <- dashboardPage(header, sidebar, body, skin = "green")

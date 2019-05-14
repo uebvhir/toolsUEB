@@ -37,36 +37,15 @@ shinyServer(function(input,output){
   
   #####FILTERING SELECTED GENES TABLE######
     selected <- reactive({
-    
-    if(input$pvalue == "0.05"){
-      if(input$lfc == "1"){
-        sel1 <- topTab()[topTab()[, "adj.P.Val"] < 0.05, ]
-        selected <- sel1[sel1[, "logFC"] > 1, ]
-      }else if(input$lfc == "-1"){
-        sel1 <- topTab()[topTab()[, "adj.P.Val"] < 0.05, ]
-        selected <- sel1[sel1[, "logFC"] < -1, ]
-      }else if(input$lfc == "no filter"){
-        selected <- topTab()[topTab()[, "adj.P.Val"] < 0.05, ]
+      
+      if(input$lfc >= "1"){
+       sel1 <- topTab()[topTab()[, "adj.P.Val"] <= input$pvalue, ]
+       selected <- sel1[sel1[, "logFC"] >= input$lfc, ]
+      }else if(input$lfc <= "-1"){
+        sel2 <- topTab()[topTab()[, "adj.P.Val"] <= input$pvalue, ]
+       selected <- sel2[sel2[, "logFC"] <= input$lfc, ]
       }
-   }else if(input$pvalue == "0.001"){
-      if(input$lfc == "1"){
-        sel1 <- topTab()[topTab()[, "adj.P.Val"] < 0.001, ]
-        selected <- sel1[sel1[, "logFC"] > 1, ]
-      }else if(input$lfc == "-1"){
-        sel1 <- topTab()[topTab()[, "adj.P.Val"] < 0.001, ]
-        selected <- sel1[sel1[, "logFC"] < -1, ]
-      }else if(input$lfc == "no filter"){
-        selected <- topTab()[topTab()[, "adj.P.Val"] < 0.001, ]
-      }
-   }else if(input$pvalue == "no filter"){
-     if(input$lfc == "1"){
-       selected <- topTab()[topTab()[, "logFC"] > 1, ]
-     }else if(input$lfc == "-1"){
-       selected <- topTab()[topTab()[, "logFC"] < -1, ]
-     }else if(input$lfc == "no filter"){
-       selected <- topTab()
-     }
-    }
+      
   })
   
   #####OUTPUT SELECTED GENES TABLE#######
@@ -82,10 +61,16 @@ shinyServer(function(input,output){
   #####VOLCANO PLOT#######
   output$volcano <- renderPlot({
      ex<-as.data.frame(topTab())
-     y <- as.numeric(ex$P.Value)
-     x <- as.numeric(ex$logFC)
-   
-    with(ex[c(1:input$volcano),], plot(x, -log(y), pch=20, main="Differentially expressed genes", xlab="logFC", ylab="-log(p-value)", xlim=c(-6,6),ylim=c(-2,20))) 
+     #y <- as.numeric(ex$P.Value)
+     #x <- as.numeric(ex$logFC)
+     with(ex, plot(logFC, -log10(P.Value), pch=20, main="Differentially expressed genes", xlim=c(-5,5)))
+     
+     with(subset(ex, adj.P.Val<.05 ), points(logFC, -log10(P.Value), pch=20, col="red"))
+     with(subset(ex, abs(logFC)>1), points(logFC, -log10(P.Value), pch=20, col="orange"))
+     with(subset(ex, adj.P.Val<.05 & abs(logFC)>1), points(logFC, -log10(P.Value), pch=20, col="green"))
+     with(subset(ex, adj.P.Val<.05 & abs(logFC)>1), textxy(logFC, -log10(P.Value), labs=SymbolsA, cex=.8))
+     
+    #with(ex[c(1:input$volcano),], plot(x, -log(y), pch=20, main="Differentially expressed genes", xlab="logFC", ylab="-log(p-value)", xlim=c(-6,6),ylim=c(-2,20))) 
     
     abline(v=c(-1,1))
   })
@@ -93,10 +78,10 @@ shinyServer(function(input,output){
   #####HEATMAP#######
   output$heatmap <- renderPlot({
     #browser()
-    ex<-as.data.frame(expMat())
+    ex<-as.data.frame(selected())
     rownames(ex) <- ex$X
     rownames(ex)
-    selGenes <- ex[c(1:input$heatmapSlider),]
+    selGenes <- ex[,c(10:19)]
     m<-data.matrix(selGenes, rownames.force = NA)
     colours <- colorRampPalette(c(input$colNum1, "grey", input$colNum2))(n = input$colorBreaks+1)
     par(mar = rep(2,4))
@@ -119,7 +104,8 @@ shinyServer(function(input,output){
   ttab <-as.data.frame(topTab())
   rownames(ttab) <- ttab$X
   geneID<-rownames(ttab)
-  sel <- ttab[c(1:20),]
+  sel <- selected()
+  rownames(sel) <- sel$X
   myInterestingGenes <- rownames(sel)
   geneList <- factor(as.integer(geneID %in% myInterestingGenes))
   names(geneList) <- geneID

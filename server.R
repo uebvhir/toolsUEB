@@ -61,17 +61,13 @@ shinyServer(function(input,output){
   #####VOLCANO PLOT#######
   output$volcano <- renderPlot({
      ex<-as.data.frame(topTab())
-     #y <- as.numeric(ex$P.Value)
-     #x <- as.numeric(ex$logFC)
-     with(ex, plot(logFC, -log10(P.Value), pch=20, main="Differentially expressed genes", xlim=c(-5,5)))
      
-     with(subset(ex, adj.P.Val<.05 ), points(logFC, -log10(P.Value), pch=20, col="red"))
-     with(subset(ex, abs(logFC)>1), points(logFC, -log10(P.Value), pch=20, col="orange"))
-     with(subset(ex, adj.P.Val<.05 & abs(logFC)>1), points(logFC, -log10(P.Value), pch=20, col="green"))
-     with(subset(ex, adj.P.Val<.05 & abs(logFC)>1), textxy(logFC, -log10(P.Value), labs=SymbolsA, cex=.8))
+      with(ex, plot(logFC, -log10(P.Value), pch=20, main="Differentially expressed genes", xlim=c(-5,5)))
+     with(subset(ex, adj.P.Val<input$pvalue), points(logFC, -log10(P.Value), pch=20, col="red"))
+     with(subset(ex, abs(logFC)>input$lfc), points(logFC, -log10(P.Value), pch=20, col="orange"))
+     with(subset(ex, adj.P.Val<.05 & abs(logFC)>input$lfc), points(logFC, -log10(P.Value), pch=20, col="green"))
+     with(subset(ex, adj.P.Val<.05 & abs(logFC)>input$lfc), textxy(logFC, -log10(P.Value), labs=SymbolsA, cex=.8))
      
-    #with(ex[c(1:input$volcano),], plot(x, -log(y), pch=20, main="Differentially expressed genes", xlab="logFC", ylab="-log(p-value)", xlim=c(-6,6),ylim=c(-2,20))) 
-    
     abline(v=c(-1,1))
   })
   
@@ -99,7 +95,6 @@ shinyServer(function(input,output){
   ###############################FUNCTIONAL ANALYSIS###############################
   
   topGOdata <- reactive({
-
 
   ttab <-as.data.frame(topTab())
   rownames(ttab) <- ttab$X

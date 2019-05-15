@@ -2,11 +2,10 @@ options(spinner.color="#00ff83")
 options(shiny.maxRequestSize = 70*1024^2)
 options(expressions = 5000)
 
-
 #libraries
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install()
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#  install.packages("BiocManager")
+#BiocManager::install()
 library(shiny)
 library(shinydashboard)
 library(DT)
@@ -28,16 +27,40 @@ library(ALL)
 #biocLite("ALL")
 
 header <- dashboardHeader(
-  title = "UEB Tools App"
-)
+  title = "UEB Tools App",
+  
+  titleWidth = 250,
+  tags$li(class = "dropdown",
+          tags$a(href="http://ueb.vhir.org", target="_blank",
+                 tags$img(height = "17px", alt="UEB logo", 
+                          src="http://ueb.vhir.org/display41")
+          )
+))
 
 sidebar <- dashboardSidebar(
   sidebarMenu(id="tabs", menuItem("Introduction", tabName = "intro", icon = icon("edit")),
                          menuItem("Upload Files", tabName = "upfiles", icon = icon("server")),
                          menuItem("Analysis", tabName = "analysis", icon = icon("braille"),
-                                              menuSubItem("Graphics", tabName = "graphics"),
-                                              menuSubItem("Functional", tabName = "functional")
-                                    ))
+                                              menuItem("Graphics", tabName = "graphics",
+                                                       menuSubItem("Selected Genes", tabName = "selectedgenes"),
+                                                       menuSubItem("Volcano", tabName = "volcano"),
+                                                       menuSubItem("Heatmap", tabName = "heatmap")),
+                                              menuItem("Functional", tabName = "functional")
+                                    )),
+  tags$footer(style= "position:fixed; bottom:0;",
+              #Inserim la imatge del logo del VHIR
+              tags$a(href="http://vhir.org", target="_blank",
+                     tags$img(width = "230px", alt="VHIR logo", 
+                              src="VHIR.jpg")
+              ),br(),
+              #Inserim la imatge del logo de la UEB
+              tags$a(href="http://ueb.vhir.org", target="_blank",
+                     tags$img(width = "230px", alt="UEB logo", 
+                              src="UEBblanc.jpg")
+              ),br(),
+              #Inserim el mail de contacte
+              div(align="center", h5(icon("envelope"),tags$a(href="mailto:ueb@vhir.org","ueb@vhir.org")))
+  )
 )
 
 body <- dashboardBody(
@@ -97,8 +120,10 @@ body <- dashboardBody(
         h2("Summary of Results")
 ),
         tabItem(tabName = "graphics",
-           h2("Results of the graphical analysis"),
-            fluidRow(
+           h2("Results of the graphical analysis")
+           ),
+            tabItem(tabName = "selectedgenes",
+                    
               box(title = "Toptable",
                solidHeader = T, status = "success", width = 12,
                 fluidRow(
@@ -114,7 +139,7 @@ body <- dashboardBody(
                  )
               )
             ),
-           fluidRow(
+           tabItem(tabName = "volcano",
               box(title = "Volcano plot", 
                   solidHeader = T, status="success",width = 12,
                   withSpinner(plotOutput("volcano")),
@@ -124,23 +149,23 @@ body <- dashboardBody(
                   submitButton("Submit")
                   
                   )),
-           fluidRow(
+           tabItem(tabName = "heatmap",
              box(title='Heatmap',
                  solidHeader = T, status="success",width = 12,
                  fluidRow(
                    box(title = 'Controls',
-                       solidHeader = T, status="info",width = 3,
+                       solidHeader = T, status="info",width = 4,
                        colourInput("colNum1", label = "Choose colours for heatmap", "yellow"),
                        colourInput("colNum2", label = NULL, "red"),
                        sliderInput("colorBreaks", label ="Select number of color breaks", 
                                    min = 2, max = 128, value = 16),
                        submitButton("Submit")),
-                   box(title='Heatmap',
+                   box(
                        solidHeader = T, status="info",width = 6,
                        withSpinner(plotOutput("heatmap")))
                  ))
            )
-          ),
+          ,
     tabItem(tabName = "functional",
             h2("Results of the functional analysis"),
             fluidRow(

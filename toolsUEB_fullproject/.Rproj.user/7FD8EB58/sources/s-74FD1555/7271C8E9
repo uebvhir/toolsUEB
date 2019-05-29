@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1558082965284.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "7271C8E9",
+    "lastKnownWriteTime" : 1558091854,
+    "last_content_update" : 1558091854210,
+    "path" : "~/toolsUEB/toolsUEB/ui.R",
+    "project_path" : "toolsUEB/ui.R",
+    "properties" : {
+        "cursorPosition" : "183,44",
+        "scrollLine" : "167"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

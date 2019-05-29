@@ -1,0 +1,60 @@
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+
+
+if (!require(DT)){
+  install.packages(DT)
+}
+    
+if (!require(shinycssloaders)){
+  install.packages(shinycssloaders) 
+}    
+
+if (!require(RColorBrewer)){
+  install.packages(RColorBrewer)  
+}    
+
+if (!require(colourpicker)){
+  install.packages(colourpicker) 
+} 
+    
+if (!require(gplots)){
+  install.packages(gplots)
+} 
+
+if (!require(calibrate)){
+  install.packages(calibrate)
+} 
+
+if (!require(xtable)){
+  install.packages(xtable) 
+} 
+
+if (!require(limma)){
+  BiocManager::install("limma")
+} 
+
+if (!require(Rgraphviz)){
+  BiocManager::install("Rgraphviz")
+} 
+     
+if (!require(ALL)){
+  BiocManager::install("ALL")
+} 
+
+if (!require(topGO)){
+  BiocManager::install("topGO")
+} 
+
+if (!require(hgu95av2.db)){
+  BiocManager::install("hgu95av2.db")
+} 
+
+
+  
+
+  
+  
+
+

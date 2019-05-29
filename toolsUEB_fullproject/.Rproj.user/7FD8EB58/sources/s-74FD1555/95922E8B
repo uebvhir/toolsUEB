@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1558084462125.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "95922E8B",
+    "lastKnownWriteTime" : 1558085506,
+    "last_content_update" : 1558085506016,
+    "path" : "~/toolsUEB/toolsUEB/help.Rmd",
+    "project_path" : "toolsUEB/help.Rmd",
+    "properties" : {
+        "cursorPosition" : "19,248",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
